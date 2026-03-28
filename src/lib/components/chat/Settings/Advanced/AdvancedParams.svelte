@@ -23,13 +23,6 @@
 		return v !== null && v !== undefined ? v : fallback;
 	}
 
-	// Returns "Inherited: <value>" for the Default button title attr, or undefined if no inherited value.
-	// Used as a native browser tooltip so users can see the effective value before enabling a param.
-	function inhTitle(key: string): string | undefined {
-		const v = inheritedParams?.[key];
-		return v !== null && v !== undefined ? `Inherited: ${v}` : undefined;
-	}
-
 	const defaultParams = {
 		// Advanced
 		stream_response: null, // Set stream responses for this model individually
@@ -281,6 +274,9 @@
 				>
 					{#if (params?.seed ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+						{#if inheritedParams?.seed != null}
+							<span class="self-center opacity-40">({inheritedParams.seed})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 					{/if}
@@ -326,6 +322,9 @@
 				>
 					{#if (params?.stop ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+						{#if inheritedParams?.stop != null}
+							<span class="self-center opacity-40">({inheritedParams.stop})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 					{/if}
@@ -363,13 +362,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
-					title={(params?.temperature ?? null) === null ? inhTitle('temperature') : undefined}
 					on:click={() => {
 						params.temperature = (params?.temperature ?? null) === null ? inh('temperature', 0.8) : null;
 					}}
 				>
 					{#if (params?.temperature ?? null) === null}
-						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.temperature != null}
+							<span class="self-center opacity-40">({inheritedParams.temperature})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 					{/if}
@@ -425,6 +426,9 @@
 				>
 					{#if (params?.reasoning_effort ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+						{#if inheritedParams?.reasoning_effort != null}
+							<span class="self-center opacity-40">({inheritedParams.reasoning_effort})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 					{/if}
@@ -468,6 +472,9 @@
 				>
 					{#if (params?.logit_bias ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+						{#if inheritedParams?.logit_bias != null}
+							<span class="self-center opacity-40">({inheritedParams.logit_bias})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 					{/if}
@@ -508,13 +515,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
-					title={(params?.max_tokens ?? null) === null ? inhTitle('max_tokens') : undefined}
 					on:click={() => {
 						params.max_tokens = (params?.max_tokens ?? null) === null ? inh('max_tokens', 128) : null;
 					}}
 				>
 					{#if (params?.max_tokens ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.max_tokens != null}
+							<span class="self-center opacity-40">({inheritedParams.max_tokens})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -563,13 +572,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
-					title={(params?.top_k ?? null) === null ? inhTitle('top_k') : undefined}
 					on:click={() => {
 						params.top_k = (params?.top_k ?? null) === null ? inh('top_k', 40) : null;
 					}}
 				>
 					{#if (params?.top_k ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.top_k != null}
+							<span class="self-center opacity-40">({inheritedParams.top_k})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -620,13 +631,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
-					title={(params?.top_p ?? null) === null ? inhTitle('top_p') : undefined}
 					on:click={() => {
 						params.top_p = (params?.top_p ?? null) === null ? inh('top_p', 0.9) : null;
 					}}
 				>
 					{#if (params?.top_p ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.top_p != null}
+							<span class="self-center opacity-40">({inheritedParams.top_p})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -682,6 +695,9 @@
 				>
 					{#if (params?.min_p ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.min_p != null}
+							<span class="self-center opacity-40">({inheritedParams.min_p})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -732,13 +748,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
-					title={(params?.frequency_penalty ?? null) === null ? inhTitle('frequency_penalty') : undefined}
 					on:click={() => {
 						params.frequency_penalty = (params?.frequency_penalty ?? null) === null ? inh('frequency_penalty', 1.1) : null;
 					}}
 				>
 					{#if (params?.frequency_penalty ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.frequency_penalty != null}
+							<span class="self-center opacity-40">({inheritedParams.frequency_penalty})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -789,13 +807,15 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded transition flex-shrink-0 outline-none"
 					type="button"
-					title={(params?.presence_penalty ?? null) === null ? inhTitle('presence_penalty') : undefined}
 					on:click={() => {
 						params.presence_penalty = (params?.presence_penalty ?? null) === null ? inh('presence_penalty', 0.0) : null;
 					}}
 				>
 					{#if (params?.presence_penalty ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.presence_penalty != null}
+							<span class="self-center opacity-40">({inheritedParams.presence_penalty})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -849,6 +869,9 @@
 				>
 					{#if (params?.mirostat ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.mirostat != null}
+							<span class="self-center opacity-40">({inheritedParams.mirostat})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -904,6 +927,9 @@
 				>
 					{#if (params?.mirostat_eta ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.mirostat_eta != null}
+							<span class="self-center opacity-40">({inheritedParams.mirostat_eta})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -960,6 +986,9 @@
 				>
 					{#if (params?.mirostat_tau ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.mirostat_tau != null}
+							<span class="self-center opacity-40">({inheritedParams.mirostat_tau})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1014,6 +1043,9 @@
 				>
 					{#if (params?.repeat_last_n ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.repeat_last_n != null}
+							<span class="self-center opacity-40">({inheritedParams.repeat_last_n})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1070,6 +1102,9 @@
 				>
 					{#if (params?.tfs_z ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.tfs_z != null}
+							<span class="self-center opacity-40">({inheritedParams.tfs_z})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1126,6 +1161,9 @@
 				>
 					{#if (params?.repeat_penalty ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.repeat_penalty != null}
+							<span class="self-center opacity-40">({inheritedParams.repeat_penalty})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1182,6 +1220,9 @@
 					>
 						{#if (params?.use_mmap ?? null) === null}
 							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							{#if inheritedParams?.use_mmap != null}
+								<span class="self-center opacity-40">({inheritedParams.use_mmap})</span>
+							{/if}
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 						{/if}
@@ -1223,6 +1264,9 @@
 					>
 						{#if (params?.use_mlock ?? null) === null}
 							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							{#if inheritedParams?.use_mlock != null}
+								<span class="self-center opacity-40">({inheritedParams.use_mlock})</span>
+							{/if}
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 						{/if}
@@ -1358,6 +1402,9 @@
 				>
 					{#if (params?.num_keep ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.num_keep != null}
+							<span class="self-center opacity-40">({inheritedParams.num_keep})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1411,6 +1458,9 @@
 				>
 					{#if (params?.num_ctx ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.num_ctx != null}
+							<span class="self-center opacity-40">({inheritedParams.num_ctx})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1466,6 +1516,9 @@
 				>
 					{#if (params?.num_batch ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.num_batch != null}
+							<span class="self-center opacity-40">({inheritedParams.num_batch})</span>
+						{/if}
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 					{/if}
@@ -1522,6 +1575,9 @@
 					>
 						{#if (params?.num_thread ?? null) === null}
 							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							{#if inheritedParams?.num_thread != null}
+								<span class="self-center opacity-40">({inheritedParams.num_thread})</span>
+							{/if}
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 						{/if}
@@ -1578,6 +1634,9 @@
 					>
 						{#if (params?.num_gpu ?? null) === null}
 							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+							{#if inheritedParams?.num_gpu != null}
+								<span class="self-center opacity-40">({inheritedParams.num_gpu})</span>
+							{/if}
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Custom')}</span>
 						{/if}
