@@ -95,6 +95,9 @@
 						<span class="ml-2 self-center">{$i18n.t('Off')}</span>
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.stream_response != null}
+							<span class="self-center opacity-40">({inheritedParams.stream_response ? $i18n.t('On') : $i18n.t('Off')})</span>
+						{/if}
 					{/if}
 				</button>
 			</div>
@@ -124,6 +127,9 @@
 					>
 						{#if (params?.stream_delta_chunk_size ?? null) === null}
 							<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+							{#if inheritedParams?.stream_delta_chunk_size != null}
+								<span class="self-center opacity-40">({inheritedParams.stream_delta_chunk_size})</span>
+							{/if}
 						{:else}
 							<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
 						{/if}
@@ -181,6 +187,9 @@
 						<span class="ml-2 self-center">{$i18n.t('Native')}</span>
 					{:else}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{#if inheritedParams?.function_calling != null}
+							<span class="self-center opacity-40">({inheritedParams.function_calling})</span>
+						{/if}
 					{/if}
 				</button>
 			</div>
