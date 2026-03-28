@@ -18,17 +18,45 @@
 	export let params = {};
 	export let embed = false;
 
-	// Admin-level DEFAULT_MODEL_PARAMS fetched once on mount (admin users only).
-	// Regular users cannot access this endpoint, so we only fetch for admins.
+	// ---------------------------------------------------------------------------
+	// PARAM INHERITANCE LOGIC
+	// ---------------------------------------------------------------------------
+	// Parameters flow through four layers, each overriding the previous:
+	//
+	//   1. Admin global defaults  — set in Admin → Settings → Advanced Params.
+	//                               Stored in DEFAULT_MODEL_PARAMS on the server.
+	//                               Fetched via GET /api/configs/models (admin only).
+	//
+	//   2. Model-specific params  — set in Admin → Workspace → Models → [model].
+	//                               Stored per-model in the DB. The /api/models list
+	//                               endpoint strips these out before sending to the
+	//                               client, so we must fetch them via getModelById().
+	//
+	//   3. User account settings  — set in the user's own Settings → Advanced Params.
+	//                               Available in the $settings store.
+	//
+	//   4. Chat-specific params   — set in the chat Controls panel (right sidebar).
+	//                               Stored in `params` and sent directly with each request.
+	//                               These win over everything else.
+	//
+	// `inheritedParams` (layers 1-3) is passed to AdvancedParams so it can:
+	//   a) Show the effective inherited value next to each "Default" button.
+	//   b) Pre-fill the value when the user clicks "Default" to enable a param.
+	//
+	// The backend (main.py) applies the same priority independently, so even when
+	// a param is left on "Default" in the chat UI, the correct inherited value
+	// is still forwarded to the model.
+	// ---------------------------------------------------------------------------
+
+	// Layer 1: Admin global defaults (admin users only — others get an empty object).
 	let adminDefaultParams: Record<string, any> = {};
 
-	// Model-specific params fetched separately via getModelById.
-	// Note: /api/models strips params from each model object before sending to the client
-	// ("to avoid exposing sensitive info"), so we must fetch them explicitly here.
+	// Layer 2: Model-specific params fetched via getModelById because /api/models
+	// deliberately strips `params` from the model list response.
 	let modelSpecificParams: Record<string, any> = {};
 
-	// Track which model ID we last fetched to avoid redundant API calls when the
-	// models array reference changes but the selected model stays the same.
+	// Tracks the last fetched model ID to avoid redundant API calls when the
+	// models array reference changes but the selected model is the same.
 	let lastFetchedModelId: string | null = null;
 
 	onMount(async () => {
@@ -38,11 +66,11 @@
 		}
 	});
 
-	// Re-fetch model-specific params only when the selected model actually changes.
+	// Re-fetch layer 2 only when the selected model actually changes.
 	$: if (models[0]?.id && models[0].id !== lastFetchedModelId) {
 		lastFetchedModelId = models[0].id;
 		getModelById(localStorage.token, models[0].id)
-			.then((m) => {
+			.then((m: any) => {
 				modelSpecificParams = m?.params ?? {};
 			})
 			.catch(() => {
@@ -53,13 +81,12 @@
 		modelSpecificParams = {};
 	}
 
-	// Effective inherited defaults passed down to AdvancedParams.
-	// Priority (lowest → highest): admin global → model-specific → user account settings.
-	// Chat-specific overrides live in `params` itself and are applied on top of this by AdvancedParams.
+	// Merged layers 1-3. Layer 3 (user settings) wins over layer 2 (model) wins over layer 1 (admin).
+	// Chat-specific params (layer 4) live in `params` and are not part of this object.
 	$: inheritedParams = {
-		...adminDefaultParams,
-		...modelSpecificParams,
-		...($settings?.params ?? {})
+		...adminDefaultParams,   // layer 1 — lowest priority
+		...modelSpecificParams,  // layer 2
+		...($settings?.params ?? {}) // layer 3 — highest inherited priority
 	};
 
 	// Persist collapsible section open/close state

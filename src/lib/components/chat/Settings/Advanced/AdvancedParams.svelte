@@ -12,12 +12,28 @@
 	export let admin = false;
 	export let custom = false;
 
-	// Effective inherited defaults from admin/model/user settings chain.
-	// When the user clicks "Default" to enable a param, we initialize it to
-	// this inherited value instead of a hardcoded fallback.
+	// ---------------------------------------------------------------------------
+	// INHERITED PARAMS
+	// ---------------------------------------------------------------------------
+	// `inheritedParams` is the merged result of three layers passed in from
+	// Controls.svelte: admin global defaults → model-specific params → user
+	// account settings. It represents the effective value each param will have
+	// at runtime if the user leaves it on "Default" in this chat.
+	//
+	// Two uses:
+	//   1. Each "Default" button shows the inherited value in muted text next to
+	//      it (e.g. "Default (0.6)") so the user knows what will be used.
+	//   2. When the user clicks "Default" to enable a param, inh() seeds the
+	//      input with the inherited value instead of a hardcoded fallback.
+	//
+	// Note: these values are display/initialisation only. The backend (main.py)
+	// independently applies the same priority chain, so params left on "Default"
+	// in the chat still reach the model with the correct inherited value.
+	// ---------------------------------------------------------------------------
 	export let inheritedParams: Record<string, any> = {};
 
-	// Returns the inherited value for a param if set, otherwise the hardcoded fallback.
+	// Returns the inherited value for `key` if configured in any upstream layer,
+	// otherwise returns `fallback`. Used to seed the input when enabling a param.
 	function inh(key: string, fallback: any): any {
 		const v = inheritedParams?.[key];
 		return v !== null && v !== undefined ? v : fallback;

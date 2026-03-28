@@ -1668,11 +1668,29 @@ async def chat_completion(
             request.state.direct = True
             request.state.model = model
 
-        # Model params: global defaults as base, per-model overrides win
+        # ---------------------------------------------------------------------------
+        # PARAM INHERITANCE — backend side
+        # ---------------------------------------------------------------------------
+        # Parameters are resolved in four layers (lowest → highest priority):
+        #
+        #   1. Admin global defaults  (DEFAULT_MODEL_PARAMS config key)
+        #   2. Model-specific params  (stored per-model in the DB)
+        #   3. User account settings  (sent by the frontend in form_data['params'])
+        #   4. Chat-specific params   (also in form_data['params'], merged by frontend)
+        #
+        # Layers 1+2 are merged here into model_info_params.
+        # Layers 3+4 arrive pre-merged in form_data['params'] from the frontend.
+        #
+        # Special keys (stream_response, stream_delta_chunk_size, reasoning_tags,
+        # function_calling) are handled individually above because they affect
+        # request-level fields rather than the model options payload.
+        # All other keys (temperature, top_k, top_p, etc.) are merged as a base
+        # layer in form_data['params'] so that user/chat values still win.
+        # ---------------------------------------------------------------------------
         default_model_params = getattr(request.app.state.config, 'DEFAULT_MODEL_PARAMS', None) or {}
         model_info_params = {
-            **default_model_params,
-            **(model_info.params.model_dump() if model_info and model_info.params else {}),
+            **default_model_params,                                                    # layer 1
+            **(model_info.params.model_dump() if model_info and model_info.params else {}),  # layer 2
         }
 
         # Check base model existence for custom models
@@ -1707,14 +1725,15 @@ async def chat_completion(
         if model_info_params.get('reasoning_tags') is not None:
             reasoning_tags = model_info_params.get('reasoning_tags')
 
-        # Merge admin/model-level params (temperature, top_k, etc.) into form_data as base.
-        # User/chat-specific params sent from the frontend override these.
+        # Inject layers 1+2 as the base of form_data['params'].
+        # Layers 3+4 (already in form_data['params']) are spread on top so they win.
+        # Special keys are excluded here because they were handled individually above.
         _special_model_keys = {'stream_response', 'stream_delta_chunk_size', 'reasoning_tags', 'function_calling'}
         _model_base_params = {k: v for k, v in model_info_params.items() if k not in _special_model_keys and v is not None}
         if _model_base_params:
             form_data['params'] = {
-                **_model_base_params,
-                **form_data.get('params', {}),  # user/chat params win
+                **_model_base_params,            # layers 1+2 as base
+                **form_data.get('params', {}),   # layers 3+4 win
             }
 
         metadata = {
