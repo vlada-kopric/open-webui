@@ -23,6 +23,13 @@
 		return v !== null && v !== undefined ? v : fallback;
 	}
 
+	// Returns "Inherited: <value>" for the Default button title attr, or undefined if no inherited value.
+	// Used as a native browser tooltip so users can see the effective value before enabling a param.
+	function inhTitle(key: string): string | undefined {
+		const v = inheritedParams?.[key];
+		return v !== null && v !== undefined ? `Inherited: ${v}` : undefined;
+	}
+
 	const defaultParams = {
 		// Advanced
 		stream_response: null, // Set stream responses for this model individually
@@ -356,6 +363,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
+					title={(params?.temperature ?? null) === null ? inhTitle('temperature') : undefined}
 					on:click={() => {
 						params.temperature = (params?.temperature ?? null) === null ? inh('temperature', 0.8) : null;
 					}}
@@ -500,6 +508,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
+					title={(params?.max_tokens ?? null) === null ? inhTitle('max_tokens') : undefined}
 					on:click={() => {
 						params.max_tokens = (params?.max_tokens ?? null) === null ? inh('max_tokens', 128) : null;
 					}}
@@ -554,6 +563,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
+					title={(params?.top_k ?? null) === null ? inhTitle('top_k') : undefined}
 					on:click={() => {
 						params.top_k = (params?.top_k ?? null) === null ? inh('top_k', 40) : null;
 					}}
@@ -610,6 +620,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
+					title={(params?.top_p ?? null) === null ? inhTitle('top_p') : undefined}
 					on:click={() => {
 						params.top_p = (params?.top_p ?? null) === null ? inh('top_p', 0.9) : null;
 					}}
@@ -721,6 +732,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
+					title={(params?.frequency_penalty ?? null) === null ? inhTitle('frequency_penalty') : undefined}
 					on:click={() => {
 						params.frequency_penalty = (params?.frequency_penalty ?? null) === null ? inh('frequency_penalty', 1.1) : null;
 					}}
@@ -777,6 +789,7 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded transition flex-shrink-0 outline-none"
 					type="button"
+					title={(params?.presence_penalty ?? null) === null ? inhTitle('presence_penalty') : undefined}
 					on:click={() => {
 						params.presence_penalty = (params?.presence_penalty ?? null) === null ? inh('presence_penalty', 0.0) : null;
 					}}

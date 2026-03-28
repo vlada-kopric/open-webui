@@ -11,6 +11,7 @@
 
 	import { onMount } from 'svelte';
 	import { getModelsConfig } from '$lib/apis/configs';
+	import { getModelById } from '$lib/apis/models';
 	import { user, settings } from '$lib/stores';
 	export let models = [];
 	export let chatFiles = [];
@@ -18,7 +19,17 @@
 	export let embed = false;
 
 	// Admin-level DEFAULT_MODEL_PARAMS fetched once on mount (admin users only).
+	// Regular users cannot access this endpoint, so we only fetch for admins.
 	let adminDefaultParams: Record<string, any> = {};
+
+	// Model-specific params fetched separately via getModelById.
+	// Note: /api/models strips params from each model object before sending to the client
+	// ("to avoid exposing sensitive info"), so we must fetch them explicitly here.
+	let modelSpecificParams: Record<string, any> = {};
+
+	// Track which model ID we last fetched to avoid redundant API calls when the
+	// models array reference changes but the selected model stays the same.
+	let lastFetchedModelId: string | null = null;
 
 	onMount(async () => {
 		if ($user?.role === 'admin') {
@@ -27,12 +38,27 @@
 		}
 	});
 
-	// Compute the effective inherited defaults:
-	//   admin global defaults (base) → model-specific params → user settings (highest)
-	// Used in AdvancedParams to initialize a param when the user clicks "Default" to enable it.
+	// Re-fetch model-specific params only when the selected model actually changes.
+	$: if (models[0]?.id && models[0].id !== lastFetchedModelId) {
+		lastFetchedModelId = models[0].id;
+		getModelById(localStorage.token, models[0].id)
+			.then((m) => {
+				modelSpecificParams = m?.params ?? {};
+			})
+			.catch(() => {
+				modelSpecificParams = {};
+			});
+	} else if (!models[0]?.id) {
+		lastFetchedModelId = null;
+		modelSpecificParams = {};
+	}
+
+	// Effective inherited defaults passed down to AdvancedParams.
+	// Priority (lowest → highest): admin global → model-specific → user account settings.
+	// Chat-specific overrides live in `params` itself and are applied on top of this by AdvancedParams.
 	$: inheritedParams = {
 		...adminDefaultParams,
-		...(models[0]?.info?.params ?? {}),
+		...modelSpecificParams,
 		...($settings?.params ?? {})
 	};
 
