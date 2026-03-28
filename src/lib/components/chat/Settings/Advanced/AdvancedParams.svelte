@@ -12,6 +12,17 @@
 	export let admin = false;
 	export let custom = false;
 
+	// Effective inherited defaults from admin/model/user settings chain.
+	// When the user clicks "Default" to enable a param, we initialize it to
+	// this inherited value instead of a hardcoded fallback.
+	export let inheritedParams: Record<string, any> = {};
+
+	// Returns the inherited value for a param if set, otherwise the hardcoded fallback.
+	function inh(key: string, fallback: any): any {
+		const v = inheritedParams?.[key];
+		return v !== null && v !== undefined ? v : fallback;
+	}
+
 	const defaultParams = {
 		// Advanced
 		stream_response: null, // Set stream responses for this model individually
@@ -258,7 +269,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.seed = (params?.seed ?? null) === null ? 0 : null;
+						params.seed = (params?.seed ?? null) === null ? inh('seed', 0) : null;
 					}}
 				>
 					{#if (params?.seed ?? null) === null}
@@ -303,7 +314,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.stop = (params?.stop ?? null) === null ? '' : null;
+						params.stop = (params?.stop ?? null) === null ? inh('stop', '') : null;
 					}}
 				>
 					{#if (params?.stop ?? null) === null}
@@ -346,7 +357,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.temperature = (params?.temperature ?? null) === null ? 0.8 : null;
+						params.temperature = (params?.temperature ?? null) === null ? inh('temperature', 0.8) : null;
 					}}
 				>
 					{#if (params?.temperature ?? null) === null}
@@ -401,7 +412,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.reasoning_effort = (params?.reasoning_effort ?? null) === null ? 'medium' : null;
+						params.reasoning_effort = (params?.reasoning_effort ?? null) === null ? inh('reasoning_effort', 'medium') : null;
 					}}
 				>
 					{#if (params?.reasoning_effort ?? null) === null}
@@ -444,7 +455,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.logit_bias = (params?.logit_bias ?? null) === null ? '' : null;
+						params.logit_bias = (params?.logit_bias ?? null) === null ? inh('logit_bias', '') : null;
 					}}
 				>
 					{#if (params?.logit_bias ?? null) === null}
@@ -490,7 +501,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.max_tokens = (params?.max_tokens ?? null) === null ? 128 : null;
+						params.max_tokens = (params?.max_tokens ?? null) === null ? inh('max_tokens', 128) : null;
 					}}
 				>
 					{#if (params?.max_tokens ?? null) === null}
@@ -544,7 +555,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.top_k = (params?.top_k ?? null) === null ? 40 : null;
+						params.top_k = (params?.top_k ?? null) === null ? inh('top_k', 40) : null;
 					}}
 				>
 					{#if (params?.top_k ?? null) === null}
@@ -600,7 +611,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.top_p = (params?.top_p ?? null) === null ? 0.9 : null;
+						params.top_p = (params?.top_p ?? null) === null ? inh('top_p', 0.9) : null;
 					}}
 				>
 					{#if (params?.top_p ?? null) === null}
@@ -655,7 +666,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.min_p = (params?.min_p ?? null) === null ? 0.0 : null;
+						params.min_p = (params?.min_p ?? null) === null ? inh('min_p', 0.0) : null;
 					}}
 				>
 					{#if (params?.min_p ?? null) === null}
@@ -711,7 +722,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.frequency_penalty = (params?.frequency_penalty ?? null) === null ? 1.1 : null;
+						params.frequency_penalty = (params?.frequency_penalty ?? null) === null ? inh('frequency_penalty', 1.1) : null;
 					}}
 				>
 					{#if (params?.frequency_penalty ?? null) === null}
@@ -767,7 +778,7 @@
 					class="p-1 px-3 text-xs flex rounded transition flex-shrink-0 outline-none"
 					type="button"
 					on:click={() => {
-						params.presence_penalty = (params?.presence_penalty ?? null) === null ? 0.0 : null;
+						params.presence_penalty = (params?.presence_penalty ?? null) === null ? inh('presence_penalty', 0.0) : null;
 					}}
 				>
 					{#if (params?.presence_penalty ?? null) === null}
@@ -820,7 +831,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.mirostat = (params?.mirostat ?? null) === null ? 0 : null;
+						params.mirostat = (params?.mirostat ?? null) === null ? inh('mirostat', 0) : null;
 					}}
 				>
 					{#if (params?.mirostat ?? null) === null}
@@ -875,7 +886,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.mirostat_eta = (params?.mirostat_eta ?? null) === null ? 0.1 : null;
+						params.mirostat_eta = (params?.mirostat_eta ?? null) === null ? inh('mirostat_eta', 0.1) : null;
 					}}
 				>
 					{#if (params?.mirostat_eta ?? null) === null}
@@ -931,7 +942,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.mirostat_tau = (params?.mirostat_tau ?? null) === null ? 5.0 : null;
+						params.mirostat_tau = (params?.mirostat_tau ?? null) === null ? inh('mirostat_tau', 5.0) : null;
 					}}
 				>
 					{#if (params?.mirostat_tau ?? null) === null}
@@ -985,7 +996,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.repeat_last_n = (params?.repeat_last_n ?? null) === null ? 64 : null;
+						params.repeat_last_n = (params?.repeat_last_n ?? null) === null ? inh('repeat_last_n', 64) : null;
 					}}
 				>
 					{#if (params?.repeat_last_n ?? null) === null}
@@ -1041,7 +1052,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.tfs_z = (params?.tfs_z ?? null) === null ? 1 : null;
+						params.tfs_z = (params?.tfs_z ?? null) === null ? inh('tfs_z', 1) : null;
 					}}
 				>
 					{#if (params?.tfs_z ?? null) === null}
@@ -1097,7 +1108,7 @@
 					class="p-1 px-3 text-xs flex rounded transition flex-shrink-0 outline-none"
 					type="button"
 					on:click={() => {
-						params.repeat_penalty = (params?.repeat_penalty ?? null) === null ? 1.1 : null;
+						params.repeat_penalty = (params?.repeat_penalty ?? null) === null ? inh('repeat_penalty', 1.1) : null;
 					}}
 				>
 					{#if (params?.repeat_penalty ?? null) === null}
@@ -1153,7 +1164,7 @@
 						class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 						type="button"
 						on:click={() => {
-							params.use_mmap = (params?.use_mmap ?? null) === null ? true : null;
+							params.use_mmap = (params?.use_mmap ?? null) === null ? inh('use_mmap', true) : null;
 						}}
 					>
 						{#if (params?.use_mmap ?? null) === null}
@@ -1194,7 +1205,7 @@
 						class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 						type="button"
 						on:click={() => {
-							params.use_mlock = (params?.use_mlock ?? null) === null ? true : null;
+							params.use_mlock = (params?.use_mlock ?? null) === null ? inh('use_mlock', true) : null;
 						}}
 					>
 						{#if (params?.use_mlock ?? null) === null}
@@ -1329,7 +1340,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.num_keep = (params?.num_keep ?? null) === null ? 24 : null;
+						params.num_keep = (params?.num_keep ?? null) === null ? inh('num_keep', 24) : null;
 					}}
 				>
 					{#if (params?.num_keep ?? null) === null}
@@ -1382,7 +1393,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.num_ctx = (params?.num_ctx ?? null) === null ? 2048 : null;
+						params.num_ctx = (params?.num_ctx ?? null) === null ? inh('num_ctx', 2048) : null;
 					}}
 				>
 					{#if (params?.num_ctx ?? null) === null}
@@ -1437,7 +1448,7 @@
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 					type="button"
 					on:click={() => {
-						params.num_batch = (params?.num_batch ?? null) === null ? 512 : null;
+						params.num_batch = (params?.num_batch ?? null) === null ? inh('num_batch', 512) : null;
 					}}
 				>
 					{#if (params?.num_batch ?? null) === null}
@@ -1493,7 +1504,7 @@
 						class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 						type="button"
 						on:click={() => {
-							params.num_thread = (params?.num_thread ?? null) === null ? 2 : null;
+							params.num_thread = (params?.num_thread ?? null) === null ? inh('num_thread', 2) : null;
 						}}
 					>
 						{#if (params?.num_thread ?? null) === null}
@@ -1549,7 +1560,7 @@
 						class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
 						type="button"
 						on:click={() => {
-							params.num_gpu = (params?.num_gpu ?? null) === null ? 0 : null;
+							params.num_gpu = (params?.num_gpu ?? null) === null ? inh('num_gpu', 0) : null;
 						}}
 					>
 						{#if (params?.num_gpu ?? null) === null}
@@ -1603,7 +1614,7 @@
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
 						on:click={() => {
-							params.keep_alive = (params?.keep_alive ?? null) === null ? '5m' : null;
+							params.keep_alive = (params?.keep_alive ?? null) === null ? inh('keep_alive', '5m') : null;
 						}}
 						type="button"
 					>

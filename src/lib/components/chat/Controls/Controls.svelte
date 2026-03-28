@@ -15,6 +15,14 @@
 	export let params = {};
 	export let embed = false;
 
+	// Compute the effective inherited defaults: model-level params (set by admin/workspace)
+	// merged with user-level params. User params take priority. These are used in AdvancedParams
+	// to initialize a param's value when the user clicks "Default" to enable it.
+	$: inheritedParams = {
+		...(models[0]?.info?.params ?? {}),
+		...($settings?.params ?? {})
+	};
+
 	// Persist collapsible section open/close state
 	const getOpen = (key: string, fallback = true): boolean => {
 		const v = localStorage.getItem(`chatControls.${key}`);
@@ -130,7 +138,7 @@
 				>
 					<div class="text-sm mt-1.5" slot="content">
 						<div>
-							<AdvancedParams admin={$user?.role === 'admin'} custom={true} bind:params />
+							<AdvancedParams admin={$user?.role === 'admin'} custom={true} bind:params {inheritedParams} />
 						</div>
 					</div>
 				</Collapsible>

@@ -1707,6 +1707,16 @@ async def chat_completion(
         if model_info_params.get('reasoning_tags') is not None:
             reasoning_tags = model_info_params.get('reasoning_tags')
 
+        # Merge admin/model-level params (temperature, top_k, etc.) into form_data as base.
+        # User/chat-specific params sent from the frontend override these.
+        _special_model_keys = {'stream_response', 'stream_delta_chunk_size', 'reasoning_tags', 'function_calling'}
+        _model_base_params = {k: v for k, v in model_info_params.items() if k not in _special_model_keys and v is not None}
+        if _model_base_params:
+            form_data['params'] = {
+                **_model_base_params,
+                **form_data.get('params', {}),  # user/chat params win
+            }
+
         metadata = {
             'user_id': user.id,
             'chat_id': form_data.pop('chat_id', None),
