@@ -9,16 +9,29 @@
 	import FileItem from '$lib/components/common/FileItem.svelte';
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 
+	import { onMount } from 'svelte';
+	import { getModelsConfig } from '$lib/apis/configs';
 	import { user, settings } from '$lib/stores';
 	export let models = [];
 	export let chatFiles = [];
 	export let params = {};
 	export let embed = false;
 
-	// Compute the effective inherited defaults: model-level params (set by admin/workspace)
-	// merged with user-level params. User params take priority. These are used in AdvancedParams
-	// to initialize a param's value when the user clicks "Default" to enable it.
+	// Admin-level DEFAULT_MODEL_PARAMS fetched once on mount (admin users only).
+	let adminDefaultParams: Record<string, any> = {};
+
+	onMount(async () => {
+		if ($user?.role === 'admin') {
+			const config = await getModelsConfig(localStorage.token).catch(() => null);
+			adminDefaultParams = config?.DEFAULT_MODEL_PARAMS ?? {};
+		}
+	});
+
+	// Compute the effective inherited defaults:
+	//   admin global defaults (base) → model-specific params → user settings (highest)
+	// Used in AdvancedParams to initialize a param when the user clicks "Default" to enable it.
 	$: inheritedParams = {
+		...adminDefaultParams,
 		...(models[0]?.info?.params ?? {}),
 		...($settings?.params ?? {})
 	};
