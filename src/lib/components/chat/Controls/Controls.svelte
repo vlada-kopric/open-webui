@@ -67,14 +67,22 @@
 	});
 
 	// Re-fetch layer 2 only when the selected model actually changes.
+	// `fetchId` is captured at call time so the async callback can verify the model
+	// hasn't changed while the request was in-flight (prevents out-of-order param leakage).
 	$: if (models[0]?.id && models[0].id !== lastFetchedModelId) {
 		lastFetchedModelId = models[0].id;
-		getModelById(localStorage.token, models[0].id)
+		const fetchId = models[0].id;
+		getModelById(localStorage.token, fetchId)
 			.then((m: any) => {
-				modelSpecificParams = m?.params ?? {};
+				// Discard stale responses if the user switched models mid-flight.
+				if (fetchId === models[0]?.id) {
+					modelSpecificParams = m?.params ?? {};
+				}
 			})
 			.catch(() => {
-				modelSpecificParams = {};
+				if (fetchId === models[0]?.id) {
+					modelSpecificParams = {};
+				}
 			});
 	} else if (!models[0]?.id) {
 		lastFetchedModelId = null;
@@ -87,7 +95,11 @@
 		...adminDefaultParams,   // layer 1 — lowest priority
 		...modelSpecificParams,  // layer 2
 		...($settings?.params ?? {}) // layer 3 — highest inherited priority
-	};
+	} as Record<string, any>;
+
+	// User's global system prompt (Settings → General). Stored at $settings.system, not $settings.params.system.
+	// Typed separately because the settings store type doesn't declare `system` as a known field.
+	$: userGlobalSystem = ($settings as Record<string, any>)?.system as string | undefined;
 
 	// Persist collapsible section open/close state
 	const getOpen = (key: string, fallback = true): boolean => {
@@ -189,6 +201,27 @@
 							rows="4"
 							placeholder={$i18n.t('Enter system prompt')}
 						/>
+
+						<!-- ---------------------------------------------------------------------------
+						     Inherited system prompt preview (shown only when no custom prompt is set).
+						     Priority matches Chat.svelte: user global settings beats model/admin params.
+						     This is read-only context — the textarea above still overrides everything.
+						     --------------------------------------------------------------------------- -->
+						{#if !params.system}
+							{#if userGlobalSystem}
+								<!-- Layer 3: user's global system prompt (Settings → General) -->
+								<div class="mt-1 text-xs opacity-40 flex flex-col gap-0.5">
+									<span>Default (from your settings):</span>
+									<span class="line-clamp-3 whitespace-pre-wrap">{userGlobalSystem}</span>
+								</div>
+							{:else if inheritedParams?.system}
+								<!-- Layer 1/2: admin global or model-specific system prompt -->
+								<div class="mt-1 text-xs opacity-40 flex flex-col gap-0.5">
+									<span>Default (from model settings):</span>
+									<span class="line-clamp-3 whitespace-pre-wrap">{inheritedParams.system}</span>
+								</div>
+							{/if}
+						{/if}
 					</div>
 				</Collapsible>
 
